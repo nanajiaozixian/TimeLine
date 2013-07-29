@@ -7,15 +7,33 @@
   <meta name="Keywords" content="">
   <meta name="Description" content="">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="js/jquery.timelinr-0.9.53.js"></script>
+	<script>
+		$(function(){
+			$().timelinr({
+				orientation: 	'vertical',
+				issuesSpeed: 	300,
+				datesSpeed: 	100,
+				arrowKeys: 		'true',
+				startAt:		3
+			})
+		});
+	</script>
+  <link rel="stylesheet" href="css/style_v.css" media="screen" />
   <style>
 	#webpage{
 	display: none;
-	width: 80%;
+	width: 85%;
+	height: 800px;
+	float: right;
+	}
+	#right{
+	width: 85%;
 	height: 800px;
 	float: right;
 	}
 	#leftbar{
-	width: 15%;
+	width: 10%;
 	float: left;
 	}
   </style>
@@ -35,7 +53,23 @@
   <h1>Timeline Demo</h1>
   <div id="leftbar">
 	<div id="url">URL:<input id="addr" type="text" /> <button id="show">Show</button></div>
+	<div id="timeline">
+		<ul id="dates">
+			<li><a href="#V1.0" class="selected">V1.0</a></li>
+			<li><a href="#V1.1">V1.1</a></li>
+			<li><a href="#V1.2">V1.2</a></li>
+			<li><a href="#V1.3">V1.3</a></li>
+			<li><a href="#V2.0">V2.0</a></li>
+			<li><a href="#V2.1">V2.1</a></li>
+			<li><a href="#V2.2">V2.2</a></li>
+			<li><a href="#V2.3">V2.3</a></li>
+			<li><a href="#V2.4">V2.4</a></li>
+			<li><a href="#V2.5">V2.5</a></li>
+		</ul>
+	</div><!--end timeline-->
   </div><!--end leftbar-->
-  <iframe id="webpage" name="webpage" src=""></iframe>
+  <div id="right">
+	<iframe id="webpage" name="webpage" src=""></iframe>
+  </div>
  </body>
 </html>
