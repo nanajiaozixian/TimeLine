@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> Timeline Demo </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <style>
+	#webpage{
+	display: none;
+	width: 80%;
+	height: 800px;
+	float: right;
+	}
+	#leftbar{
+	width: 15%;
+	float: left;
+	}
+  </style>
+  <script>
+  window.onload = function() {
+	  document.getElementById("show").onclick = function(){
+		  var url = document.getElementById("addr").value;
+		  document.getElementById("webpage").src = url;
+		  document.getElementById("webpage").style.display = "block";
+		  return;
+	  }
+  }
+  </script>
+ </head>
+
+ <body>
+  <h1>Timeline Demo</h1>
+  <div id="leftbar">
+	<div id="url">URL:<input id="addr" type="text" /> <button id="show">Show</button></div>
+  </div><!--end leftbar-->
+  <iframe id="webpage" name="webpage" src=""></iframe>
+ </body>
+</html>
