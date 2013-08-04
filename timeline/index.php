@@ -1,4 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<?php
+require_once('dealDatas.php');
+
+$localfilepath = "";
+UIHtml();
+
+//ÏÔÊ¾timeline½çÃæ
+function UIHtml(){
+?>
 <html>
  <head>
   <title> Timeline Demo </title>
@@ -6,7 +14,7 @@
   <meta name="Author" content="">
   <meta name="Keywords" content="">
   <meta name="Description" content="">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="js/jquery-2.0.3.min.js"></script>
   <script src="js/jquery.timelinr-0.9.53.js"></script>
 	<script>
 		$(function(){
@@ -52,7 +60,12 @@
  <body>
   <h1>Timeline Demo</h1>
   <div id="leftbar">
-	<div id="url">URL:<input id="addr" type="text" /> <button id="show">Show</button></div>
+  <form method="post" action="dealDatas.php">
+	<div id="url">Page URL:
+		<input id="addr" name="pageurl" type="text" /> 
+		<input id="show" name="show" type="submit" value="Show"/>
+	</div>
+  </form>
 	<div id="timeline">
 		<ul id="dates">
 			<li><a href="#V1" class="selected">V1</a></li>
@@ -73,3 +86,7 @@
   </div>
  </body>
 </html>
+<?php
+}
+
+?>
