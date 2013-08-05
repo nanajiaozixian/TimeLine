@@ -20,10 +20,11 @@ define('OTHERS', 'others');//保存其它文件的文件夹名字
 define('V', 'v');//保存单一版本文件的文件夹名字
 define('TEMP', 'temporary');//保存临时文件
 define('READ_LEN', 4096);
+define('BROWSER_SEPARATOR', '/');
  //DIRECTORY_SEPARATOR  路径'/'  
 
 /**全局变量**/
-$v = 4;//版本号 
+$v = 0;//版本号 
 $url = "http://www.adobe.com/cn/";//网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
 $parts = parse_url($url);//解析url
 $host = $parts['host'];//获取hostname
@@ -114,7 +115,7 @@ function saveCSSFiles($str){
 	global $others;
 	global $version;
 	global $version_template;
-	$localpath = OTHERS.DIRECTORY_SEPARATOR;
+	$localpath = OTHERS.BROWSER_SEPARATOR;
 	$arr_link_css = array(); //保存css 文件完整link
 	$arr_filename_css = array(); //保存css 文件的名字
 	$arr_localpath_css = array();//保存css 文件本地存储路径
@@ -145,7 +146,7 @@ function saveCSSFiles($str){
 			if(!compare($oldfilepath, $tempfilepath)){
 				file_put_contents($newfilepath, $str_file_content);
 			}else{
-				$arr_localpath_css[$count] = "..".DIRECTORY_SEPARATOR.V.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
+				$arr_localpath_css[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_css;
 				
 			}
 		}
@@ -169,7 +170,7 @@ function saveJSFiles($str){
 	global $others;
 	global $version;
 	global $version_template;
-	$localpath = OTHERS.DIRECTORY_SEPARATOR;
+	$localpath = OTHERS.BROWSER_SEPARATOR;
 	$arr_link_js = array(); //保存js 文件完整link
 	$arr_filename_js = array(); //保存js 文件的名字
 	$arr_localpath_js = array();//保存js 文件本地存储路径
@@ -204,7 +205,7 @@ function saveJSFiles($str){
 			if(!compare($oldfilepath, $tempfilepath)){
 				file_put_contents($newfilepath, $str_file_content);
 			}else{
-				$arr_localpath_js[$count] = "..".DIRECTORY_SEPARATOR.V.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_js;
+				$arr_localpath_js[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_js;
 				
 			}
 		}
@@ -229,7 +230,7 @@ function saveIMGFiles($str){
 	global $others;
 	global $version;
 	global $version_template;
-	$localpath = OTHERS.DIRECTORY_SEPARATOR;
+	$localpath = OTHERS.BROWSER_SEPARATOR;
 	$arr_link_img = array(); //保存img 文件完整link
 	$arr_filename_img = array(); //保存img 文件的名字
 	$arr_localpath_img = array();//保存img 文件本地存储路径
@@ -262,7 +263,7 @@ function saveIMGFiles($str){
 			if(!compare($oldfilepath, $tempfilepath)){
 				file_put_contents($newfilepath, $str_file_content);
 			}else{
-				$arr_localpath_img[$count] = "..".DIRECTORY_SEPARATOR.V.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_img;
+				$arr_localpath_img[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_img;
 				
 			}
 		}

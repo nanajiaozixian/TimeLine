@@ -16,6 +16,7 @@ function UIHtml(){
   <meta name="Description" content="">
   <script src="js/jquery-2.0.3.min.js"></script>
   <script src="js/jquery.timelinr-0.9.53.js"></script>
+  <script src="js/index.js"></script>
 	<script>
 		$(function(){
 			$().timelinr({
@@ -45,27 +46,14 @@ function UIHtml(){
 	float: left;
 	}
   </style>
-  <script>
-  window.onload = function() {
-	  document.getElementById("show").onclick = function(){
-		  var url = document.getElementById("addr").value;
-		  document.getElementById("webpage").src = url;
-		  document.getElementById("webpage").style.display = "block";
-		  return;
-	  }
-  }
-  </script>
  </head>
 
  <body>
-  <h1>Timeline Demo</h1>
   <div id="leftbar">
-  <form method="post" action="dealDatas.php">
 	<div id="url">Page URL:
 		<input id="addr" name="pageurl" type="text" /> 
 		<input id="show" name="show" type="submit" value="Show"/>
 	</div>
-  </form>
 	<div id="timeline">
 		<ul id="dates">
 			<li><a href="#V1" class="selected">V1</a></li>
