@@ -19,11 +19,11 @@ define('VERSIONS', 'versions');//保存所有版文件的文件夹名字
 define('OTHERS', 'others');//保存其它文件的文件夹名字
 define('V', 'v');//保存单一版本文件的文件夹名字
 define('TEMP', 'temporary');//保存临时文件
+define('READ_LEN', 4096);
  //DIRECTORY_SEPARATOR  路径'/'  
 
 /**全局变量**/
-
-$v = 3;//版本号 
+$v = 4;//版本号 
 $url = "http://www.adobe.com/cn/";//网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
 $parts = parse_url($url);//解析url
 $host = $parts['host'];//获取hostname
@@ -60,6 +60,7 @@ function saveFiles($str){
 	$str_new = saveCSSFiles($str);
 	$str_new = saveJSFiles($str_new);
 	$str_new = saveIMGFiles($str_new);
+	$str_new = changeALink($str_new);
 	global $local_file;
 	global $version;
 	file_put_contents($version.DIRECTORY_SEPARATOR.$local_file, $str_new);
@@ -95,7 +96,6 @@ function isFileExist($filename){
 		$temppath = $version_template.$old_v.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filename;
 		
 		if(file_exists($temppath)){
-			echo "temppath: $temppath<br/>";
 			return $old_v;
 		}
 	}
@@ -118,7 +118,7 @@ function saveCSSFiles($str){
 	$arr_link_css = array(); //保存css 文件完整link
 	$arr_filename_css = array(); //保存css 文件的名字
 	$arr_localpath_css = array();//保存css 文件本地存储路径
-	preg_match_all("/<link\s+.*href=\"([^\"]*)\".*>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
+	preg_match_all("/<link\s+.*?href=[\"|']([^\"']*)[\"|'].*?>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
 	$count = 0;	
 	foreach($links as $val){	
 		$arr_link_css[$count] = $val[1];
@@ -142,7 +142,6 @@ function saveCSSFiles($str){
 			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
 			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_css;
 			file_put_contents($tempfilepath, $str_file_content);
-			echo "oldfilepath: $oldfilepath<br/>tempfilepath: $tempfilepath<br/>";
 			if(!compare($oldfilepath, $tempfilepath)){
 				file_put_contents($newfilepath, $str_file_content);
 			}else{
@@ -177,7 +176,7 @@ function saveJSFiles($str){
 	$count = 0;	
 
 
-	preg_match_all("/<script\s+.*src=\"([^\"]*)\".*>/",$str,$scripts, PREG_SET_ORDER);//scripts 里保存了从页面获取的所有js文件的路径
+	preg_match_all("/<script\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$scripts, PREG_SET_ORDER);//scripts 里保存了从页面获取的所有js文件的路径
 	//存储js文件原来的地址、文件名和下载在本地的路径
 	
 	foreach($scripts as $val){	
@@ -236,7 +235,7 @@ function saveIMGFiles($str){
 	$arr_localpath_img = array();//保存img 文件本地存储路径
 	$count = 0;	
 
-	preg_match_all("/<img\s+.*src=\"([^\"]*)\".*>/",$str,$images, PREG_SET_ORDER);//images 里保存了从页面获取的所有js文件的路径
+	preg_match_all("/<img\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$images, PREG_SET_ORDER);//images 里保存了从页面获取的所有img文件的路径
 	//存储img文件原来的地址、文件名和下载在本地的路径
 	
 	foreach($images as $val){	
@@ -312,7 +311,7 @@ function recursive_delete($dir)
 **参考文献：http://www.php.net/manual/zh/function.md5-file.php
 **          
 **/
-define('READ_LEN', 4096);
+
 
 function compare($file1, $file2){
 	return files_identical($file1, $file2);
@@ -347,5 +346,17 @@ function files_identical($fn1, $fn2) {
     fclose($fp2);
 
     return $same;
+}
+
+//修改a标签的link， 如果是相对路径，则改为绝对路径。
+function changeALink($str){
+	global $parts;
+	global $host;
+	$absolute_path = $parts['scheme']."://".$host;	
+	$str_new = $str;
+	$pattern = "/(<a\s+.*?href=[\"|'])(\/[^\"\']*)([\"|'].*?>)/";//注意这里用到的“？”，此处要用非贪吃模式
+	$replacement = '${1}'.$absolute_path.'$2$3';
+	$str_new = preg_replace($pattern, $replacement, $str_new);
+	return $str_new;
 }
 ?>
