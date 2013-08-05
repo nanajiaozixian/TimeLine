@@ -1,4 +1,12 @@
 <?php
+
+/******
+**作者： Doris
+**时间： 2013-8-14
+**作用： 实现wartisan产品的timeline功能
+******/
+
+
 require_once('dealDatas.php');
 
 $localfilepath = "";
