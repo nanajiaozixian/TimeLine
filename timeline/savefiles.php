@@ -39,8 +39,7 @@ if(isset($_POST['pageurl'])){
 }else{
 	$url = "";
 }
-//test
-$url="http://www.adobe.com/products/photoshop.html?promoid=JOLIW";
+
 //判断url的有效性
 if(get_headers($url)===false){
 	echo "error";
@@ -82,10 +81,9 @@ saveFiles($str_file);
 *return: 所有文件的路径
 **/
 function saveFiles($str){
-	//$str_new = saveCSSFiles($str);
-	//$str_new = saveJSFiles($str_new);
-	//$str_new = saveIMGFiles($str_new);
-	$str_new = saveIMGFiles($str);
+	$str_new = saveCSSFiles($str);
+	$str_new = saveJSFiles($str_new);
+	$str_new = saveIMGFiles($str_new);
 	$str_new = changeALink($str_new);
 	global $local_file;
 	global $version;
