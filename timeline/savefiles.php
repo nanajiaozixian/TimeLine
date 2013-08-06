@@ -22,10 +22,34 @@ define('TEMP', 'temporary');//保存临时文件
 define('READ_LEN', 4096);
 define('BROWSER_SEPARATOR', '/');
  //DIRECTORY_SEPARATOR  路径'/'  
+set_time_limit(120);
+$v = 0;//版本号 
+$url = "";//网页url
+ 
+//获取版本
+if(isset($_POST['version'])){
+	$v = $_POST['version'];
+}else{
+	$v = 0;//版本号 
+}
+
+//获取网页url
+if(isset($_POST['pageurl'])){
+	$url = $_POST['pageurl'];
+}else{
+	$url = "";
+}
+//test
+$url="http://www.adobe.com/products/photoshop.html?promoid=JOLIW";
+//判断url的有效性
+if(get_headers($url)===false){
+	echo "error";
+	return;
+}
 
 /**全局变量**/
-$v = 0;//版本号 
-$url = "http://www.adobe.com/cn/";//网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
+
+//网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
 $parts = parse_url($url);//解析url
 $host = $parts['host'];//获取hostname
 $main_file_init = basename($parts['path']);//获取pathname
@@ -58,9 +82,10 @@ saveFiles($str_file);
 *return: 所有文件的路径
 **/
 function saveFiles($str){
-	$str_new = saveCSSFiles($str);
-	$str_new = saveJSFiles($str_new);
-	$str_new = saveIMGFiles($str_new);
+	//$str_new = saveCSSFiles($str);
+	//$str_new = saveJSFiles($str_new);
+	//$str_new = saveIMGFiles($str_new);
+	$str_new = saveIMGFiles($str);
 	$str_new = changeALink($str_new);
 	global $local_file;
 	global $version;
@@ -92,7 +117,6 @@ function isFileExist($filename){
 	global $version_template;
 	global $v;
 	$old_v = $v-1;
-	$filepath;
 	for(;$old_v>=0; $old_v--){
 		$temppath = $version_template.$old_v.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filename;
 		
@@ -122,6 +146,9 @@ function saveCSSFiles($str){
 	preg_match_all("/<link\s+.*?href=[\"|']([^\"']*)[\"|'].*?>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
 	$count = 0;	
 	foreach($links as $val){	
+		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
+			continue;
+		}
 		$arr_link_css[$count] = $val[1];
 		if(strpos($val[1], "http:")!==0){
 			
@@ -130,26 +157,30 @@ function saveCSSFiles($str){
 		$parts_css = parse_url($val[1]);
 		$filname_css = basename($parts_css['path']);//获取pathname
 		$arr_filename_css[$count] = $filname_css;
-		$str_file_content = file_get_contents($val[1]);
-		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_css;
-		$arr_localpath_css[$count] = $localpath.$filname_css;
-		
-		//如果旧版本中不存在该文件，则直接下载该文件
-		$old_version = isFileExist($filname_css);
-		$oldfilepath = "";
-		if($old_version === false){
-			file_put_contents($newfilepath, $str_file_content);
-		}else{
-			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
-			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_css;
-			file_put_contents($tempfilepath, $str_file_content);
-			if(!compare($oldfilepath, $tempfilepath)){
-				file_put_contents($newfilepath, $str_file_content);
-			}else{
-				$arr_localpath_css[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_css;
-				
-			}
+		//判断链接有效性
+		if(get_headers($val[1])!==false){		
+				$str_file_content = file_get_contents($val[1]);
+    		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_css;
+    		$arr_localpath_css[$count] = $localpath.$filname_css;
+    		
+    		//如果旧版本中不存在该文件，则直接下载该文件
+    		$old_version = isFileExist($filname_css);
+    		$oldfilepath = "";
+    		if($old_version === false){
+    			file_put_contents($newfilepath, $str_file_content);
+    		}else{
+    			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
+    			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_css;
+    			file_put_contents($tempfilepath, $str_file_content);
+    			if(!compare($oldfilepath, $tempfilepath)){
+    				file_put_contents($newfilepath, $str_file_content);
+    			}else{
+    				$arr_localpath_css[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_css;
+    				
+    			}
+    		}
 		}
+		
 		$count++;
 	}
 	
@@ -181,6 +212,9 @@ function saveJSFiles($str){
 	//存储js文件原来的地址、文件名和下载在本地的路径
 	
 	foreach($scripts as $val){	
+		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
+			continue;
+		}
 		$arr_link_js[$count] = $val[1];
 		if(strpos($val[1], "http:")!==0){
 			
@@ -189,26 +223,30 @@ function saveJSFiles($str){
 		$parts_js = parse_url($val[1]);
 		$filname_js = basename($parts_js['path']);//获取pathname
 		$arr_filename_js[$count] = $filname_js;
-		$str_file_content = file_get_contents($val[1]);
-		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_js;
-		$arr_localpath_js[$count] = $localpath.$filname_js;
-
-		//如果旧版本中不存在该文件，则直接下载该文件
-		$old_version = isFileExist($filname_js);	
-		$oldfilepath = "";
-		if($old_version === false){
-			file_put_contents($newfilepath, $str_file_content);
-		}else{
-			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_js;
-			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_js;
-			file_put_contents($tempfilepath, $str_file_content);
-			if(!compare($oldfilepath, $tempfilepath)){
-				file_put_contents($newfilepath, $str_file_content);
-			}else{
-				$arr_localpath_js[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_js;
-				
-			}
+		//判断链接有效性
+		if(get_headers($val[1])!==false){		
+				$str_file_content = file_get_contents($val[1]);
+    		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_js;
+    		$arr_localpath_js[$count] = $localpath.$filname_js;
+    
+    		//如果旧版本中不存在该文件，则直接下载该文件
+    		$old_version = isFileExist($filname_js);	
+    		$oldfilepath = "";
+    		if($old_version === false){
+    			file_put_contents($newfilepath, $str_file_content);
+    		}else{
+    			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_js;
+    			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_js;
+    			file_put_contents($tempfilepath, $str_file_content);
+    			if(!compare($oldfilepath, $tempfilepath)){
+    				file_put_contents($newfilepath, $str_file_content);
+    			}else{
+    				$arr_localpath_js[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_js;
+    				
+    			}
+    		}
 		}
+		
 		$count++;
 	}
 
@@ -238,39 +276,53 @@ function saveIMGFiles($str){
 
 	preg_match_all("/<img\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$images, PREG_SET_ORDER);//images 里保存了从页面获取的所有img文件的路径
 	//存储img文件原来的地址、文件名和下载在本地的路径
-	
+
 	foreach($images as $val){	
+		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
+			continue;
+		}
+
 		$arr_link_img[$count] = $val[1];
-		if(strpos($val[1], "http:")!==0){		
-			$val[1] = $images[$count][1] = "http://".$host.$val[1];
+		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)=="/"){	
+			array_push($arr_link_img, $val[1]);	
+			//$val[1] = $images[$count][1] = "http://".$host.$val[1];
 		}	
+	
 		$parts_img = parse_url($val[1]);
+		if(!$parts_img['path']){
+			continue;
+		}
+	
 		$filname_img = basename($parts_img['path']);//获取pathname
 		$arr_filename_img[$count] = $filname_img;
-		$str_file_content = file_get_contents($val[1]);
-		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_img;
-		$arr_localpath_img[$count] = $localpath.$filname_img;
-
-		//如果旧版本中不存在该文件，则直接下载该文件
-		$old_version = isFileExist($filname_img);
-		$oldfilepath = "";
-		if($old_version === false){
-			file_put_contents($newfilepath, $str_file_content);
-		}else{	
-			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_img;
-			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_img;
-			file_put_contents($tempfilepath, $str_file_content);
-			if(!compare($oldfilepath, $tempfilepath)){
-				file_put_contents($newfilepath, $str_file_content);
-			}else{
-				$arr_localpath_img[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_img;
-				
-			}
+		//判断链接有效性
+		if(get_headers($val[1])!==false){		
+				$str_file_content = file_get_contents($val[1]);
+    		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_img;
+    		$arr_localpath_img[$count] = $localpath.$filname_img;
+    
+    		//如果旧版本中不存在该文件，则直接下载该文件
+    		$old_version = isFileExist($filname_img);
+    	
+    		$oldfilepath = "";
+    		if($old_version === false){
+    			file_put_contents($newfilepath, $str_file_content);
+    			
+    		}else{	
+    			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_img;
+    			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_img;
+    			file_put_contents($tempfilepath, $str_file_content);
+    			if(!compare($oldfilepath, $tempfilepath)){
+    				file_put_contents($newfilepath, $str_file_content);
+    			}else{
+    				$arr_localpath_img[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_img;
+    				
+    			}
+    		}
 		}
-		//file_put_contents($version.DIRECTORY_SEPARATOR.$arr_localpath_img[$count], $str_file_content);
+		
 		$count++;
 	}
-
 	//把html文件里的img路径更改指向保存的路径
 	$str_new = $str;
 	$str_new = str_replace($arr_link_img, $arr_localpath_img, $str_new);

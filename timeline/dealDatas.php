@@ -27,6 +27,9 @@ if(isset($_POST['pageurl'])){
 	echo $localfilepath;
 }
 */
+
+
+
 /***************************************************************各种类*********************************************************************/
 
 /**
@@ -34,21 +37,21 @@ if(isset($_POST['pageurl'])){
 **代表网页的各种信息和操作
 **/
 class WebPageInfor{
-	public $versions = array();
-	public $max_version;
-	public $min_version;
-	public $file_name;
-	public $file_path = array();
+	public $max_version=0;
+	public $min_version=0;
+	public $local_file_name;
+	public $files_path = array();
 
-	public function _construct(){
-
-	}
-
-	public function _destruct(){
-
-	}
 }
+$myWebPage = new WebPageInfor();
+$myWebPage->files_path = array('v0'=>'pages/cn.com.adobe.www/versions/v0/cn_local.html',
+																'v1'=>'pages/cn.com.adobe.www/versions/v1/cn_local.html',
+																'v2'=>'pages/cn.com.adobe.www/versions/v2/cn_local.html',
+																'v3'=>'pages/cn.com.adobe.www/versions/v3/cn_local.html');
+$myWebPage->max_version = 3;
+$myWebPage->local_file_name ="cn_local.html";
 
+sentJSON($myWebPage);
 
 /**************************************************************各种方法*********************************************************************/
 /**
@@ -58,13 +61,28 @@ class WebPageInfor{
 **/
 function getWebPageInfor($url){
 	//从mongodb获取网页的各种信息
-
+	
 	$page_infor = new WebPageInfor();
 	return $page_infor;
 }
 
 
-
+function sentJSON($page){
+	if(get_class($page)!= "WebPageInfor"){
+		return;
+	}
+	$data_arr = array(
+		'files_path'=>$page->files_path,
+		'max_version'=>$page->max_version,
+		'min_version'=>$page->min_version,
+		'local_file_name'=>$page->local_file_name
+	);
+	
+	$json_string = json_encode($data_arr);
+	echo $json_string;
+	
+	
+}
 
 
 

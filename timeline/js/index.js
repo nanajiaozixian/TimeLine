@@ -1,15 +1,61 @@
 window.onload = function() {
+	
+		//timeline功能
 	  document.getElementById("show").onclick = function(){
 		  var url = document.getElementById("addr").value;
 		  $.ajax({
 		  	type:"POST",
 		  	url:"dealDatas.php",
-		  	data:{pageurl: url}
-		  }).done(function(msg){
-		  	document.getElementById("webpage").src = msg;
-		 		 document.getElementById("webpage").style.display = "block";
+		  	data:{pageurl: url},
+		  	dataType: "json",//希望回调函数返回的数据类型
+		  	success:function(json){
+		  			getProfile(json);
+		  		}
 		  });
-		  
-		  return;
-	  }
+	  } 
+	  
+	  //snapshot功能
+	   document.getElementById("snap").onclick = function(){
+	   	var url = document.getElementById("addr").value;
+		  var ver = document.getElementById("vers").value;
+		  $.ajax({
+		  	type:"POST",
+		  	url:"savefiles.php",
+		  	data:{version: ver, pageurl: url},
+		  	//dataType: "json",//希望回调函数返回的数据类型
+		  	success:function(msg){
+		  			console.log(msg);
+		  		}
+		  });
+	  } 
+	  
  }
+ 
+function getProfile(json){			
+			var local_file_name = json.local_file_name;
+			var files_path = json.files_path;
+			var min_version = json.min_version;
+			var local_file_name = json.local_file_name;		
+			drawTimeline(files_path);
+}
+
+function drawTimeline(filesPath){
+			$.each(filesPath, function(key,val){
+				$("#dates").append(
+					'<li><a href="'+val+'">'+key+'</a></li>');
+				}
+			);
+			
+			//timline插件
+			$(function(){
+			$().timelinr({
+				orientation: 	'vertical',
+				issuesSpeed: 	300,
+				datesSpeed: 	100,
+				arrowKeys: 		'true',
+				startAt:		3
+			})
+		});
+	
+	
+}

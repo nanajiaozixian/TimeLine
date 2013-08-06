@@ -7,7 +7,7 @@
 ******/
 
 
-require_once('dealDatas.php');
+//require_once('dealDatas.php');
 
 $localfilepath = "";
 UIHtml();
@@ -25,17 +25,7 @@ function UIHtml(){
   <script src="js/jquery-2.0.3.min.js"></script>
   <script src="js/jquery.timelinr-0.9.53.js"></script>
   <script src="js/index.js"></script>
-	<script>
-		$(function(){
-			$().timelinr({
-				orientation: 	'vertical',
-				issuesSpeed: 	300,
-				datesSpeed: 	100,
-				arrowKeys: 		'true',
-				startAt:		3
-			})
-		});
-	</script>
+
   <link rel="stylesheet" href="css/style_v.css" media="screen" />
   <style>
 	#webpage{
@@ -62,18 +52,12 @@ function UIHtml(){
 		<input id="addr" name="pageurl" type="text" /> 
 		<input id="show" name="show" type="submit" value="Show"/>
 	</div>
+	<div>Version:
+		<input id="vers" name="version" type="text" /> 
+		<button id="snap">Snapshot</button>
+	</div>
 	<div id="timeline">
 		<ul id="dates">
-			<li><a href="#V1" class="selected">V1</a></li>
-			<li><a href="#V2">V2</a></li>
-			<li><a href="#V3">V3</a></li>
-			<li><a href="#V4">V4</a></li>
-			<li><a href="#V5">V5</a></li>
-			<li><a href="#V6">V6</a></li>
-			<li><a href="#V7">V7</a></li>
-			<li><a href="#V8">V8</a></li>
-			<li><a href="#V9">V9</a></li>
-			<li><a href="#V10">V10</a></li>
 		</ul>
 	</div><!--end timeline-->
   </div><!--end leftbar-->
