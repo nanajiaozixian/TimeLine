@@ -417,7 +417,7 @@ function addToDB(){
 	global $folder_name;
 	
 	$ver_arr = array(V.$v=>$verpagepath_local);
-//	var_dump($ver_arr);
+//var_dump($ver_arr);
 	addNewVersion($folder_name, $ver_arr);
 }
 ?>

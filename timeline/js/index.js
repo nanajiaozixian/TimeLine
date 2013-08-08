@@ -32,25 +32,17 @@ window.onload = function() {
  }
  
 function getProfile(json){
-					
-			/*var local_file_name = json.local_file_name;
-			var files_path = json.files_path;
-			var min_version = json.min_version;
-			var local_file_name = json.local_file_name;		
-			drawTimeline(files_path);*/
 			var paths = eval("("+json+")");
+			if(paths.length ==0){
+				alert("The page has not any local vertion now. Go to make some snapshots now!");
+				return;
+			}
 			drawTimeline(paths);
 		
-			
-			
 }
 
 function drawTimeline(filesPath){
-			/*$.each(filesPath, function(key,val){
-				$("#dates").append(
-					'<li><a href="'+val+'">'+key+'</a></li>');
-				}
-			);*/
+		
 			$("#dates").empty();
 				for(var i=0; i<filesPath.length;i++){
 				$.each(filesPath[i], function(key, value){

@@ -63,7 +63,9 @@ $myWebPage->local_file_name ="cn_local.html";
 function getWebPageInfor($pagehostname){
 	//从mongodb获取网页的各种信息
 	$index = getMyPageCollect($pagehostname);
-
+	/*if($index === false){
+		$index = array();
+	}*/
 	sentJSON($index);
 	
 }
