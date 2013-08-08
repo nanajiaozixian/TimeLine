@@ -6,14 +6,16 @@
 **作用： timeline数据处理
 ******/
 
+require_once("wrMongodb.php");
+
+
 define('VERSIONS', 'versions');//保存所有版文件的文件夹名字
 define('BROWSER_SEPARATOR', '/');
 
-/*
 $version_template = "pages".BROWSER_SEPARATOR;
 global $localfilepath;
 
-
+newMongoClient();//开启mongo
 if(isset($_POST['pageurl'])){
 	$pageURL = $_POST['pageurl'];
 	$parts = parse_url($pageURL);//解析url
@@ -21,12 +23,11 @@ if(isset($_POST['pageurl'])){
 	$main_file_init = basename($parts['path']);//获取pathname
 	$folder_name = preg_replace("/(\w+)\.(\w+)\.(\w+)/i", "$3.$2.$1", $host);
 	$folder_name = $main_file_init.".".$folder_name;
-	$local_file = $main_file_init."_local.html";
-	$filepath_v0 = $version_template.$folder_name.BROWSER_SEPARATOR.VERSIONS.BROWSER_SEPARATOR."v0".BROWSER_SEPARATOR.$local_file;
-	$localfilepath =  "http://localhost/timeline/".$filepath_v0;
-	echo $localfilepath;
+	
+	getWebPageInfor($folder_name);
+	
 }
-*/
+
 
 
 
@@ -51,7 +52,7 @@ $myWebPage->files_path = array('v0'=>'pages/cn.com.adobe.www/versions/v0/cn_loca
 $myWebPage->max_version = 3;
 $myWebPage->local_file_name ="cn_local.html";
 
-sentJSON($myWebPage);
+//sentJSON($myWebPage);
 
 /**************************************************************各种方法*********************************************************************/
 /**
@@ -59,31 +60,20 @@ sentJSON($myWebPage);
 **作用： 获取网页的各种信息
 **var url 网页的链接
 **/
-function getWebPageInfor($url){
+function getWebPageInfor($pagehostname){
 	//从mongodb获取网页的各种信息
+	$index = getMyPageCollect($pagehostname);
+
+	sentJSON($index);
 	
-	$page_infor = new WebPageInfor();
-	return $page_infor;
 }
 
 
-function sentJSON($page){
-	if(get_class($page)!= "WebPageInfor"){
-		return;
-	}
-	$data_arr = array(
-		'files_path'=>$page->files_path,
-		'max_version'=>$page->max_version,
-		'min_version'=>$page->min_version,
-		'local_file_name'=>$page->local_file_name
-	);
-	
-	$json_string = json_encode($data_arr);
+function sentJSON($page){	
+	$json_string = json_encode($page);
 	echo $json_string;
-	
-	
+		
 }
-
 
 
 

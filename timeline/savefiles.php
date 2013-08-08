@@ -13,6 +13,7 @@
 
 /******************************************************************主要部分*******************************************************************************************/
 
+require_once("wrMongodb.php");
 
 /**宏变量**/
 define('VERSIONS', 'versions');//保存所有版文件的文件夹名字
@@ -39,7 +40,7 @@ if(isset($_POST['pageurl'])){
 }else{
 	$url = "";
 }
-
+//$url = "http://www.adobe.com/products/dreamweaver.html?promoid=KAUCF";
 //判断url的有效性
 if(get_headers($url)===false){
 	echo "error";
@@ -69,9 +70,9 @@ if(substr($main_file, -5)!=".html"){
 $local_file = $main_file_init."_local.html";
 $str_file = file_get_contents($url);
 file_put_contents($version.DIRECTORY_SEPARATOR.$main_file, $str_file);
-
+$verpagepath_local = $version.DIRECTORY_SEPARATOR.$local_file;// html的local文件储存的地址
 saveFiles($str_file);
-
+addToDB();
 /********************************************************************各种函数************************************************************************************/
 
 /**
@@ -85,9 +86,8 @@ function saveFiles($str){
 	$str_new = saveJSFiles($str_new);
 	$str_new = saveIMGFiles($str_new);
 	$str_new = changeALink($str_new);
-	global $local_file;
-	global $version;
-	file_put_contents($version.DIRECTORY_SEPARATOR.$local_file, $str_new);
+	global $verpagepath_local;
+	file_put_contents($verpagepath_local, $str_new);
 	recursive_delete(TEMP.DIRECTORY_SEPARATOR);//删除临时文件夹里的文件
 }
 
@@ -409,5 +409,15 @@ function changeALink($str){
 	$replacement = '${1}'.$absolute_path.'$2$3';
 	$str_new = preg_replace($pattern, $replacement, $str_new);
 	return $str_new;
+}
+
+function addToDB(){
+	global $v;
+	global $verpagepath_local;
+	global $folder_name;
+	
+	$ver_arr = array(V.$v=>$verpagepath_local);
+//	var_dump($ver_arr);
+	addNewVersion($folder_name, $ver_arr);
 }
 ?>

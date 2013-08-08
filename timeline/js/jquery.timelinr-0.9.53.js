@@ -59,6 +59,12 @@ jQuery.fn.timelinr = function(options){
 		}
 		
 		$(settings.datesDiv+' a').click(function(event){
+			/*****ÃÌº”frame’π æ   Doris  *******/
+				var pagepath = $(this).attr("href");
+				document.getElementById("webpage").src = pagepath;
+				document.getElementById("webpage").style.display = "block";
+			
+			/***************/
 			event.preventDefault();
 			// first vars
 			var whichIssue = $(this).text();
