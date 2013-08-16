@@ -1,4 +1,7 @@
+
+
 window.onload = function() {
+			
 	
 		//timeline¹¦ÄÜ
 	  document.getElementById("show").onclick = function(){
@@ -29,6 +32,9 @@ window.onload = function() {
 		  });
 	  } 
 	  
+
+
+	  
  }
  
 function getProfile(json){
@@ -37,19 +43,29 @@ function getProfile(json){
 				alert("The page has not any local vertion now. Go to make some snapshots now!");
 				return;
 			}
+			 var url = document.getElementById("addr").value;
 			drawTimeline(paths);
 		
 }
 
 function drawTimeline(filesPath){
+			
 		
 			$("#dates").empty();
 				for(var i=0; i<filesPath.length;i++){
 				$.each(filesPath[i], function(key, value){
 					value = value.replace(/\\/g, "/");
 				$("#dates").append(
-					'<li><a href="'+value+'">'+key+'</a></li>');
+					'<li><a href="#'+key+'" path="'+value+'">'+key+'</a></li>');
+					/*$("#issues").append(
+					'<li id='+key+'>'+
+					'<h1>'+key+'</h1>'+
+					'<p>'+'hhhhhhhhhh'+'</p>'+
+					'</li>');*/
 				})
+				
+				
+				
 				}
 			
 			//timline²å¼þ
@@ -65,3 +81,4 @@ function drawTimeline(filesPath){
 	
 	
 }
+

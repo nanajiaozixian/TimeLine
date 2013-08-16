@@ -60,7 +60,7 @@ jQuery.fn.timelinr = function(options){
 		
 		$(settings.datesDiv+' a').click(function(event){
 			/*****ÃÌº”frame’π æ   Doris  *******/
-				var pagepath = $(this).attr("href");
+				var pagepath = $(this).attr("path");
 				document.getElementById("webpage").src = pagepath;
 				document.getElementById("webpage").style.display = "block";
 			

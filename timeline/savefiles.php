@@ -23,7 +23,7 @@ define('TEMP', 'temporary');//保存临时文件
 define('READ_LEN', 4096);
 define('BROWSER_SEPARATOR', '/');
  //DIRECTORY_SEPARATOR  路径'/'  
-set_time_limit(120);
+set_time_limit(300);
 $v = 0;//版本号 
 $url = "";//网页url
  
@@ -141,8 +141,9 @@ function saveCSSFiles($str){
 	$arr_link_css = array(); //保存css 文件完整link
 	$arr_filename_css = array(); //保存css 文件的名字
 	$arr_localpath_css = array();//保存css 文件本地存储路径
-	preg_match_all("/<link\s+.*?href=[\"|']([^\"']*)[\"|'].*?>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
+	preg_match_all("/<link\s+.*?href=[\"|'](.+?)[\"|'].*?>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
 	$count = 0;	
+	var_dump($links);
 	foreach($links as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
@@ -154,6 +155,9 @@ function saveCSSFiles($str){
 		}	
 		$parts_css = parse_url($val[1]);
 		$filname_css = basename($parts_css['path']);//获取pathname
+		if($filname_css===""){
+			continue;
+		}
 		$arr_filename_css[$count] = $filname_css;
 		//判断链接有效性
 		if(get_headers($val[1])!==false){		
@@ -165,6 +169,7 @@ function saveCSSFiles($str){
     		$old_version = isFileExist($filname_css);
     		$oldfilepath = "";
     		if($old_version === false){
+    			
     			file_put_contents($newfilepath, $str_file_content);
     		}else{
     			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
@@ -208,7 +213,7 @@ function saveJSFiles($str){
 
 	preg_match_all("/<script\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$scripts, PREG_SET_ORDER);//scripts 里保存了从页面获取的所有js文件的路径
 	//存储js文件原来的地址、文件名和下载在本地的路径
-	
+	var_dump($scripts);
 	foreach($scripts as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
@@ -220,9 +225,13 @@ function saveJSFiles($str){
 		}	
 		$parts_js = parse_url($val[1]);
 		$filname_js = basename($parts_js['path']);//获取pathname
+		if($filname_js===""){
+			continue;
+		}
 		$arr_filename_js[$count] = $filname_js;
 		//判断链接有效性
 		if(get_headers($val[1])!==false){		
+				echo $val[1].'<br/>';
 				$str_file_content = file_get_contents($val[1]);
     		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_js;
     		$arr_localpath_js[$count] = $localpath.$filname_js;
@@ -275,6 +284,7 @@ function saveIMGFiles($str){
 	preg_match_all("/<img\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$images, PREG_SET_ORDER);//images 里保存了从页面获取的所有img文件的路径
 	//存储img文件原来的地址、文件名和下载在本地的路径
 
+	var_dump($images);
 	foreach($images as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
@@ -292,9 +302,13 @@ function saveIMGFiles($str){
 		}
 	
 		$filname_img = basename($parts_img['path']);//获取pathname
+		if($filname_img===""){
+			continue;
+		}
 		$arr_filename_img[$count] = $filname_img;
 		//判断链接有效性
 		if(get_headers($val[1])!==false){		
+				echo $val[1].'<br/>';
 				$str_file_content = file_get_contents($val[1]);
     		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_img;
     		$arr_localpath_img[$count] = $localpath.$filname_img;

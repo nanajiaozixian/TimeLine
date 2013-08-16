@@ -59,6 +59,8 @@ function UIHtml(){
 	<div id="timeline">
 		<ul id="dates">
 		</ul>
+		<ul id="issues">
+		</ul>
 	</div><!--end timeline-->
   </div><!--end leftbar-->
   <div id="right">
