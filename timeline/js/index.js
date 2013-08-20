@@ -2,10 +2,12 @@
 
 window.onload = function() {
 			
-	
+		var pageurl="";
+  	var copy_file_path = "";
 		//timeline功能
 	  document.getElementById("show").onclick = function(){
 		  var url = document.getElementById("addr").value;
+		  pageurl = url;
 		  $.ajax({
 		  	type:"POST",
 		  	url:"dealDatas.php",
@@ -18,25 +20,70 @@ window.onload = function() {
 	  } 
 	  
 	  //snapshot功能
-	   document.getElementById("snap").onclick = function(){
+	  
+	  document.getElementById("snap").onclick = function(){
 	   	var url = document.getElementById("addr").value;
+	   	pageurl = url;
 		  var ver = document.getElementById("vers").value;
 		  $.ajax({
 		  	type:"POST",
-		  	url:"savefiles.php",
+		  	url:"preSavefiles.php",
 		  	data:{version: ver, pageurl: url},
-		  	//dataType: "json",//希望回调函数返回的数据类型
 		  	success:function(msg){
-		  			console.log(msg);
+		  			copy_file_path = msg;
+		  			document.getElementById("hidepage").src = copy_file_path;
+  					document.getElementById("hidepage").style.display = "block";
+  					addIFrameEvents();
 		  		}
 		  });
 	  } 
-	  
+	  	  
 
-
-	  
- }
  
+  function addIFrameEvents(){
+  	var iframe = document.getElementById("hidepage");
+  	if(iframe.attachEvent){
+  		iframe.attachEvent("onload", function(){
+  			//alert("Local iframe is now loaded.");
+  			
+  		});
+  	}else{
+  		iframe.onload = function(){
+  			
+  			var doc = document.getElementById('hidepage').contentDocument;
+  			var links_arr = doc.getElementsByTagName("link");
+  			
+  			var hrefs = new Array();
+  			for(var i=0; i<links_arr.length; i++){
+  				if(links_arr[i].hasAttribute("href")){
+						hrefs.push(links_arr[i].getAttribute("href"));
+					}
+  			}
+  			
+  			var scripts_arr = doc.getElementsByTagName("script");
+  			var srcs = new Array();
+  			for(var i=0; i<scripts_arr.length; i++){
+  				if(scripts_arr[i].hasAttribute("src")){
+						srcs.push(scripts_arr[i].getAttribute("src"));
+					}
+  			}
+  		
+  		
+		 $.ajax({
+		  	type:"POST",
+		  	url:"download.php",
+		  	data:{csshref: hrefs, jssrcs: srcs, page: pageurl, copyfile:copy_file_path},
+		  	dataType: "json",//希望回调函数返回的数据类型
+		  	success:function(json){
+		  			
+		  		}
+		  });
+  			
+  			
+  		}
+  	}
+  }
+  
 function getProfile(json){
 			var paths = eval("("+json+")");
 			if(paths.length ==0){
@@ -82,3 +129,4 @@ function drawTimeline(filesPath){
 	
 }
 
+}

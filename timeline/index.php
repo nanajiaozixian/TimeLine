@@ -34,6 +34,12 @@ function UIHtml(){
 	height: 800px;
 	float: right;
 	}
+	#hidepage{
+	display: none;
+	width: 85%;
+	height: 800px;
+	float: right;
+	}
 	#right{
 	width: 85%;
 	height: 800px;
@@ -65,6 +71,7 @@ function UIHtml(){
   </div><!--end leftbar-->
   <div id="right">
 	<iframe id="webpage" name="webpage" src=""></iframe>
+	<iframe id="hidepage" name="hidepage" src=""></iframe>
   </div>
  </body>
 </html>

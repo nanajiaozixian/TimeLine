@@ -26,30 +26,32 @@ define('BROWSER_SEPARATOR', '/');
 set_time_limit(300);
 $v = 0;//版本号 
 $url = "";//网页url
+$parts = "";
+$host = "";
+$main_file_init = "";
+$folder_name = "";
+$folder_name = "";
+$version_template = "";
+$version = "";
+$others = "";
+$verpagepath_local = "";
  
-//获取版本
-if(isset($_POST['version'])){
-	$v = $_POST['version'];
-}else{
-	$v = 0;//版本号 
-}
+function downloadFiles($str_file, $url_in){
 
-//获取网页url
-if(isset($_POST['pageurl'])){
-	$url = $_POST['pageurl'];
-}else{
-	$url = "";
-}
-//$url = "http://www.adobe.com/products/dreamweaver.html?promoid=KAUCF";
-//判断url的有效性
-if(get_headers($url)===false){
-	echo "error";
-	return;
-}
-
-/**全局变量**/
+global $v;//版本号 
+global $url ;//网页url
+global $parts ;
+global $host ;
+global $main_file_init ;
+global $folder_name ;
+global $folder_name ;
+global $version_template ;
+global $version ;
+global $others ;	
+global $verpagepath_local;
 
 //网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
+$url =  $url_in;
 $parts = parse_url($url);//解析url
 $host = $parts['host'];//获取hostname
 $main_file_init = basename($parts['path']);//获取pathname
@@ -68,11 +70,12 @@ if(substr($main_file, -5)!=".html"){
 	$main_file = $main_file.".html";
 }
 $local_file = $main_file_init."_local.html";
-$str_file = file_get_contents($url);
-file_put_contents($version.DIRECTORY_SEPARATOR.$main_file, $str_file);
+$str = file_get_contents($url);
+file_put_contents($version.DIRECTORY_SEPARATOR.$main_file, $str);
 $verpagepath_local = $version.DIRECTORY_SEPARATOR.$local_file;// html的local文件储存的地址
 saveFiles($str_file);
 addToDB();
+}
 /********************************************************************各种函数************************************************************************************/
 
 /**
@@ -87,6 +90,7 @@ function saveFiles($str){
 	$str_new = saveIMGFiles($str_new);
 	$str_new = changeALink($str_new);
 	global $verpagepath_local;
+	echo "verpagepath_local: $verpagepath_local<br/>";
 	file_put_contents($verpagepath_local, $str_new);
 	recursive_delete(TEMP.DIRECTORY_SEPARATOR);//删除临时文件夹里的文件
 }
@@ -141,18 +145,19 @@ function saveCSSFiles($str){
 	$arr_link_css = array(); //保存css 文件完整link
 	$arr_filename_css = array(); //保存css 文件的名字
 	$arr_localpath_css = array();//保存css 文件本地存储路径
+		//file_put_contents("temp.html", $str);
 	preg_match_all("/<link\s+.*?href=[\"|'](.+?)[\"|'].*?>/",$str,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
 	$count = 0;	
-	var_dump($links);
+	//var_dump($links);
 	foreach($links as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
 		}
 		$arr_link_css[$count] = $val[1];
-		if(strpos($val[1], "http:")!==0){
+		/*if(strpos($val[1], "http:")!==0){
 			
 			$val[1] = $links[$count][1] = "http://".$host.$val[1];
-		}	
+		}	*/
 		$parts_css = parse_url($val[1]);
 		$filname_css = basename($parts_css['path']);//获取pathname
 		if($filname_css===""){
@@ -160,6 +165,7 @@ function saveCSSFiles($str){
 		}
 		$arr_filename_css[$count] = $filname_css;
 		//判断链接有效性
+		//echo $val[1]."<br/>";
 		if(get_headers($val[1])!==false){		
 				$str_file_content = file_get_contents($val[1]);
     		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_css;
@@ -219,10 +225,10 @@ function saveJSFiles($str){
 			continue;
 		}
 		$arr_link_js[$count] = $val[1];
-		if(strpos($val[1], "http:")!==0){
+		/*if(strpos($val[1], "http:")!==0){
 			
 			$val[1] = $scripts[$count][1] = "http://".$host.$val[1];
-		}	
+		}	*/
 		$parts_js = parse_url($val[1]);
 		$filname_js = basename($parts_js['path']);//获取pathname
 		if($filname_js===""){
