@@ -21,9 +21,15 @@ if(isset($_POST['pageurl'])){
 	$parts = parse_url($pageURL);//解析url
 	$host = $parts['host'];//获取hostname
 	$main_file_init = basename($parts['path']);//获取pathname
+	if($main_file_init===""){
+		$main_file_init = "index.html";
+	}
+	if(substr($main_file_init,-5)!==".html"){
+		$main_file_init = $main_file_init.".html";
+	}
 	$folder_name = preg_replace("/(\w+)\.(\w+)\.(\w+)/i", "$3.$2.$1", $host);
-	$folder_name = $main_file_init.".".$folder_name;
-	
+	$folder_name = substr($main_file_init,0,-5).".".$folder_name;
+	//echo "folder_name: $folder_name<br/>";
 	getWebPageInfor($folder_name);
 	
 }
@@ -62,6 +68,7 @@ $myWebPage->local_file_name ="cn_local.html";
 **/
 function getWebPageInfor($pagehostname){
 	//从mongodb获取网页的各种信息
+	//echo "pagehostname: $pagehostname";
 	$index = getMyPageCollect($pagehostname);
 	/*if($index === false){
 		$index = array();

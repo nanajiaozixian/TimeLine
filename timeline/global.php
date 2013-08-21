@@ -23,8 +23,11 @@ function relative_to_absolute($content, $feed_url){
         $new_content = preg_replace('/href="\/\//', 'href="'.$protocol[0], $new_content);
 
         //$new_content = preg_replace('/src="\//', 'src="'.$protocol[0].$server_url.'/', $new_content);
-         $new_content = preg_replace('/src="\/([^\/]+)/', 'src="'.$protocol[0].$server_url.'/'.'\\1', $new_content);
-         $new_content = preg_replace('/src="\/\//', 'src="'.$protocol[0], $new_content);
+        $new_content = preg_replace('/src="\/([^\/]+)/', 'src="'.$protocol[0].$server_url.'/'.'\\1', $new_content);
+        $new_content = preg_replace('/src="\/\//', 'src="'.$protocol[0], $new_content);
+         
+        $new_content = preg_replace('/url\((["|\']?)\/([^\/]+?)/', 'url('.'\\1'.$protocol[0].$server_url.'/'.'\\2', $new_content);
+				$new_content = preg_replace('/url\((["|\']?)\/\//', 'url('.'\\1'.$protocol[0], $new_content);
 
     } else {
 	//echo "not replace<br/>";

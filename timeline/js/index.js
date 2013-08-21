@@ -32,7 +32,7 @@ window.onload = function() {
 		  	success:function(msg){
 		  			copy_file_path = msg;
 		  			document.getElementById("hidepage").src = copy_file_path;
-  					document.getElementById("hidepage").style.display = "block";
+  					//document.getElementById("hidepage").style.display = "block";
   					addIFrameEvents();
 		  		}
 		  });

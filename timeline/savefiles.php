@@ -20,6 +20,8 @@ define('VERSIONS', 'versions');//保存所有版文件的文件夹名字
 define('OTHERS', 'others');//保存其它文件的文件夹名字
 define('V', 'v');//保存单一版本文件的文件夹名字
 define('TEMP', 'temporary');//保存临时文件
+define('CSS', 'css');//保存css源文件
+define('IMG', 'img');//保存css源文件
 define('READ_LEN', 4096);
 define('BROWSER_SEPARATOR', '/');
  //DIRECTORY_SEPARATOR  路径'/'  
@@ -35,6 +37,8 @@ $version_template = "";
 $version = "";
 $others = "";
 $verpagepath_local = "";
+$imgfolder="";
+$collection_name="";
  
 function downloadFiles($str_file, $url_in){
 
@@ -49,6 +53,8 @@ global $version_template ;
 global $version ;
 global $others ;	
 global $verpagepath_local;
+global $imgfolder;
+global $collection_name;
 
 //网页url ！！！！！！！！！！注意，在整合代码时，这个变量应该是从前端传来的。
 $url =  $url_in;
@@ -56,20 +62,32 @@ $parts = parse_url($url);//解析url
 $host = $parts['host'];//获取hostname
 $main_file_init = basename($parts['path']);//获取pathname
 $folder_name = preg_replace("/(\w+)\.(\w+)\.(\w+)/i", "$3.$2.$1", $host);
-$folder_name = $main_file_init.".".$folder_name;//网页的总文件夹名字，根据域名定义，如www.adobe.com/cn,则文件夹名字为cn.com.adobe.com
-$version_template = "pages".DIRECTORY_SEPARATOR.$folder_name.DIRECTORY_SEPARATOR.VERSIONS.DIRECTORY_SEPARATOR.V;
+if($main_file_init!==""){
+$page_folder = $main_file_init;//网页的总文件夹名字，根据域名定义，如www.adobe.com/cn,则文件夹名字为cn.com.adobe.com
+}else{
+	$page_folder = "index";
+}
+$collection_name = $page_folder.".".$folder_name;
+$version_template = "pages".DIRECTORY_SEPARATOR.$folder_name.DIRECTORY_SEPARATOR.$page_folder.DIRECTORY_SEPARATOR.VERSIONS.DIRECTORY_SEPARATOR.V;
 $version = $version_template.$v; //version路径: versions\v0 
 $others = $version.DIRECTORY_SEPARATOR.OTHERS; //others路径: versions\v0\others
+$cssfolder = $version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.CSS; //others路径: versions\v0\others
+$imgfolder = $version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.IMG.DIRECTORY_SEPARATOR;
 
 //建version文件夹
-createFolder($others);
+createFolder($cssfolder);
+createFolder($imgfolder);
 createFolder(TEMP);
-
 $main_file = $main_file_init;
+if($main_file_init===""){
+	$main_file = "index.html";
+}
+
 if(substr($main_file, -5)!=".html"){
 	$main_file = $main_file.".html";
 }
-$local_file = $main_file_init."_local.html";
+$local_file = substr($main_file,0,-5)."_local.html";
+echo "local_file, $local_file  main_file:  $main_file<br/>";
 $str = file_get_contents($url);
 file_put_contents($version.DIRECTORY_SEPARATOR.$main_file, $str);
 $verpagepath_local = $version.DIRECTORY_SEPARATOR.$local_file;// html的local文件储存的地址
@@ -90,7 +108,7 @@ function saveFiles($str){
 	$str_new = saveIMGFiles($str_new);
 	$str_new = changeALink($str_new);
 	global $verpagepath_local;
-	echo "verpagepath_local: $verpagepath_local<br/>";
+	//echo "verpagepath_local: $verpagepath_local<br/>";
 	file_put_contents($verpagepath_local, $str_new);
 	recursive_delete(TEMP.DIRECTORY_SEPARATOR);//删除临时文件夹里的文件
 }
@@ -120,7 +138,7 @@ function isFileExist($filename){
 	global $v;
 	$old_v = $v-1;
 	for(;$old_v>=0; $old_v--){
-		$temppath = $version_template.$old_v.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filename;
+		$temppath = $version_template.$old_v.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.CSS.DIRECTORY_SEPARATOR.$filename;
 		
 		if(file_exists($temppath)){
 			return $old_v;
@@ -137,6 +155,7 @@ function isFileExist($filename){
 **返回值  存在则修改过路径的文本；
 **/
 function saveCSSFiles($str){
+	global $url;
 	global $host;
 	global $others;
 	global $version;
@@ -163,26 +182,34 @@ function saveCSSFiles($str){
 		if($filname_css===""){
 			continue;
 		}
+		$filname_css = ifFileNameRepeat($filname_css, $arr_filename_css);
 		$arr_filename_css[$count] = $filname_css;
 		//判断链接有效性
 		//echo $val[1]."<br/>";
 		if(get_headers($val[1])!==false){		
 				$str_file_content = file_get_contents($val[1]);
-    		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_css;
+				
+    		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.CSS.DIRECTORY_SEPARATOR.$filname_css;
+    		$newlocalfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_css;
     		$arr_localpath_css[$count] = $localpath.$filname_css;
     		
     		//如果旧版本中不存在该文件，则直接下载该文件
     		$old_version = isFileExist($filname_css);
     		$oldfilepath = "";
-    		if($old_version === false){
-    			
+    		if($old_version === false){   			
     			file_put_contents($newfilepath, $str_file_content);
+    			$str_localfile_content = relative_to_absolute($str_file_content, $url);
+    			$str_localfile_content = saveFilesInCss($str_localfile_content);
+    			file_put_contents($newlocalfilepath, $str_localfile_content);
     		}else{
-    			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.$filname_css;
+    			$oldfilepath = $version_template.$old_version.DIRECTORY_SEPARATOR.OTHERS.DIRECTORY_SEPARATOR.CSS.DIRECTORY_SEPARATOR.$filname_css;
     			$tempfilepath = TEMP.DIRECTORY_SEPARATOR.$filname_css;
     			file_put_contents($tempfilepath, $str_file_content);
     			if(!compare($oldfilepath, $tempfilepath)){
     				file_put_contents($newfilepath, $str_file_content);
+    				$str_localfile_content = relative_to_absolute($str_file_content, $url);
+    				$str_localfile_content = saveFilesInCss($str_localfile_content);
+    				file_put_contents($newlocalfilepath, $str_localfile_content);
     			}else{
     				$arr_localpath_css[$count] = "..".BROWSER_SEPARATOR.V.$old_version.BROWSER_SEPARATOR.OTHERS.BROWSER_SEPARATOR.$filname_css;
     				
@@ -219,7 +246,7 @@ function saveJSFiles($str){
 
 	preg_match_all("/<script\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$scripts, PREG_SET_ORDER);//scripts 里保存了从页面获取的所有js文件的路径
 	//存储js文件原来的地址、文件名和下载在本地的路径
-	var_dump($scripts);
+	//var_dump($scripts);
 	foreach($scripts as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
@@ -237,7 +264,7 @@ function saveJSFiles($str){
 		$arr_filename_js[$count] = $filname_js;
 		//判断链接有效性
 		if(get_headers($val[1])!==false){		
-				echo $val[1].'<br/>';
+				//echo $val[1].'<br/>';
 				$str_file_content = file_get_contents($val[1]);
     		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_js;
     		$arr_localpath_js[$count] = $localpath.$filname_js;
@@ -290,7 +317,7 @@ function saveIMGFiles($str){
 	preg_match_all("/<img\s+.*?src=[\"|']([^\"']*)[\"|'].*?>/",$str,$images, PREG_SET_ORDER);//images 里保存了从页面获取的所有img文件的路径
 	//存储img文件原来的地址、文件名和下载在本地的路径
 
-	var_dump($images);
+	//var_dump($images);
 	foreach($images as $val){	
 		if(strpos($val[1], "http:")!==0 && substr($val[1], 0,1)!=="/"){		
 			continue;
@@ -314,7 +341,7 @@ function saveIMGFiles($str){
 		$arr_filename_img[$count] = $filname_img;
 		//判断链接有效性
 		if(get_headers($val[1])!==false){		
-				echo $val[1].'<br/>';
+				//echo $val[1].'<br/>';
 				$str_file_content = file_get_contents($val[1]);
     		$newfilepath = $version.DIRECTORY_SEPARATOR.$localpath.$filname_img;
     		$arr_localpath_img[$count] = $localpath.$filname_img;
@@ -434,10 +461,58 @@ function changeALink($str){
 function addToDB(){
 	global $v;
 	global $verpagepath_local;
-	global $folder_name;
+	global $collection_name;
 	
 	$ver_arr = array(V.$v=>$verpagepath_local);
 //var_dump($ver_arr);
-	addNewVersion($folder_name, $ver_arr);
+	addNewVersion($collection_name, $ver_arr);
+}
+
+//保存css文件中引用的其他文件
+function saveFilesInCss($str_file){
+	$urls_arr = array();
+	$local_urls_arr = array();
+	global $imgfolder;
+	$savepath = $imgfolder;
+	$localpath = IMG.BROWSER_SEPARATOR;
+	preg_match_all('/url\((["|\']?)(.*?)\\1\)/',$str_file,$links, PREG_SET_ORDER);//links 里保存了从页面获取的所有css文件的路径
+	array_unique($links);
+	foreach($links as $val){	
+		$val[2] = trim($val[2]);	
+		if(substr($val[2],0, 5)==="data:"){
+			continue;
+		}
+		echo $val[2];
+		array_push($urls_arr,$val[2]);
+		$parts_img = parse_url($val[2]);
+		if(!$parts_img['path']){
+			continue;
+		}
+	
+		$filname_img = basename($parts_img['path']);//获取pathname
+		if($filname_img===""){
+			continue;
+		}
+		$str = file_get_contents($val[2]);
+		
+		array_push($local_urls_arr, $localpath.$filname_img);
+		
+		file_put_contents( $savepath.$filname_img, $str);
+		
+	}
+	$str_new = str_replace($urls_arr, $local_urls_arr, $str_file);
+	var_dump($local_urls_arr);
+	return $str_new;
+	
+}
+
+function ifFileNameRepeat($filename, $name_arr, $num=1){
+	if(in_array($filename, $name_arr)===TRUE){			
+			$filename = substr($filename, 0, -4)."_".$num.substr($filename,-4);
+			$num++;
+			return ifFileNameRepeat($filename, $name_arr,$num);
+		}else{
+			return $filename;
+		}
 }
 ?>
